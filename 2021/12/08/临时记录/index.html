@@ -8,10 +8,10 @@
   <meta name="description" content="">
   <meta name="author" content="John Doe">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="Hello World"/>
+  <meta property="og:title" content="volcano 的 blog"/>
   <meta property="og:description" content="幸甚至哉，歌以咏志" />
   <meta property="og:site_name" content="volcano 的 blog"/>
-  <meta property="og:type" content="article" />
+  <meta property="og:type" content="website" />
   <meta property="og:image" content="http://example.com"/>
   
     <link rel="alternate" href="/atom.xml" title="volcano 的 blog" type="application/atom+xml">
@@ -47,7 +47,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">Hello World</p>
+          <p class="title">Untitled Post</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -103,7 +103,7 @@
           
           <!-- Date -->
           <span class="date-time info">On
-            <span class="date">2021-11-25</span>
+            <span class="date">2021-12-08</span>
             <span class="time">23:37:27</span>
           </span>
           
@@ -112,19 +112,22 @@
         
         <!-- Post Main Content -->
         <div class="post-content">
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+          <p>最后说一句，多线程容易出bug主要因为：</p>
+<p>“抢占“式的线程切换 —— 你无法确定两个线程访问数据的顺序，一切都很随机<br>“同步“不可组装 —— 同步的代码组装起来也不同步，必须加个更大的同步块</p>
+<p>http无状态，无连接。<br>连接好理解：一次请求结束就断开。<br>无状态：还是请求独立。<br>前端cookie保存用户信息，后端session生成id，标识，其次让无关的数据和数据库隔离开来。</p>
+<p>一个有状态的机制是TCP<br>发送的每个数据包都有标号。</p>
+<p>类比一下，在客户端和服务端都开辟一块空间来存储记录状态的数据，就解决了无状态的好处。</p>
+<blockquote>
+<p>reference: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/EZwOUGMrGKEF_POisJKmuw">https://mp.weixin.qq.com/s/EZwOUGMrGKEF_POisJKmuw</a></p>
+</blockquote>
+<h2 id="ping命令原理。"><a href="#ping命令原理。" class="headerlink" title="ping命令原理。"></a>ping命令原理。</h2><p>底层是ICMP协议，直接基于网络层的IP协议。</p>
+<h3 id="3次握手之前，listen做了哪些事情。"><a href="#3次握手之前，listen做了哪些事情。" class="headerlink" title="3次握手之前，listen做了哪些事情。"></a>3次握手之前，listen做了哪些事情。</h3><p>服务端：创建socket绑定端口，listen监听。<br>客户端的相关代码是创建 socket，然后调用 connect 连接 server。</p>
+<p>用哈希表管理半连接队列，因为半连接需要快速查找。最后将半连接挂到了接收队列的queue上。</p>
+<p>在服务器 listen 的时候，主要是进行了全/半连接队列的长度限制计算，以及相关的内存申请和初始化。全/连接队列初始化了以后才可以相应来自客户端的握手请求。</p>
+<p>..这也太多了，没时间看了，面试完就补充。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/6a0fcb1008d6">https://www.jianshu.com/p/6a0fcb1008d6</a> <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/u242LSHnePBg_KbMc0ioTA">https://mp.weixin.qq.com/s/u242LSHnePBg_KbMc0ioTA</a></p>
+</blockquote>
 
         </div>
       </div>
