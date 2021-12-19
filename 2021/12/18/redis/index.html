@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <!-- Html Head Tag-->
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <!-- Open Graph Data -->
+  <meta property="og:title" content="redis"/>
+  <meta property="og:description" content="幸甚至哉，歌以咏志" />
+  <meta property="og:site_name" content="volcano 的 blog"/>
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="http://example.com"/>
+  
+    <link rel="alternate" href="/atom.xml" title="volcano 的 blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+
+  <!-- Site Title -->
+  <title>volcano 的 blog</title>
+
+  <!-- Bootstrap CSS -->
+  
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+  <!-- Custom CSS -->
+  
+  
+<link rel="stylesheet" href="/css/style.light.css">
+
+
+  <!-- Google Analytics -->
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <!-- Page Header -->
+
+
+<header class="site-header header-background" style="background-image: url(/img/default-banner-dark.jpg)">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="page-title with-background-image">
+          <p class="title">redis</p>
+          <p class="subtitle"></p>
+        </div>
+        <div class="site-menu with-background-image">
+          <ul>
+            
+              <li>
+                <a href="/">
+                  
+                  Home
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  
+                  Archives
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="https://github.com/<your-github-username>">
+                  
+                  Github
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="mailto:<your-email-address>">
+                  
+                  Email
+                  
+                </a>
+              </li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By John Doe</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2021-12-18</span>
+            <span class="time">14:27:51</span>
+          </span>
+          
+        </div>
+        <!-- Tags -->
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <h3 id="redis为什么快。"><a href="#redis为什么快。" class="headerlink" title="redis为什么快。"></a>redis为什么快。</h3><p>内存，I/O多路复用—&gt;I/O为什么慢。</p>
+<h3 id="Redis-I-O多路复用"><a href="#Redis-I-O多路复用" class="headerlink" title="Redis I/O多路复用"></a>Redis I/O多路复用</h3><h3 id="数据类型和实现方式"><a href="#数据类型和实现方式" class="headerlink" title="数据类型和实现方式"></a>数据类型和实现方式</h3><p>字符串String、列表List、哈希Hash、集合Set、有序集合Zset，但是Redis后续又丰富了几种数据类型分别是Bitmaps、HyperLogLogs、GEO。</p>
+<p>zset实现方式：<br>跳表实现方式：<br>字典</p>
+<p>Redis底层的数据结构包括：简单动态数组SDS、链表、字典、跳跃链表、整数集合、压缩列表、对象。<br>跳表通过多层缓存去减少查找次数。<br>其中，插入、查找、删除以及迭代输出有序序列这几个操作，红黑树也能完成，时间复杂度和跳表是一样的，但是，按照区间来查找数据这个操作，红黑树的效率没有跳表高。 </p>
+<h3 id="Redis的淘汰策略"><a href="#Redis的淘汰策略" class="headerlink" title="Redis的淘汰策略"></a>Redis的淘汰策略</h3><p>直接报错。<br>从过期的数据lru<br>从全部的key进行lru<br>在设置了过期时间的key中，淘汰过期时间剩余最短的<br>allkeys-random：从所有key中随机淘汰数据<br>volatile-random：从设置了过期时间的key中随机淘汰</p>
+<p>指令 ：maxmemory-policy</p>
+<h3 id="Redis分布式锁"><a href="#Redis分布式锁" class="headerlink" title="Redis分布式锁"></a>Redis分布式锁</h3><p>Redis 锁主要利用 Redis 的 setnx 命令 上锁。del解锁。也可以设置超时时间。过期超时自动解锁。</p>
+<blockquote>
+<p>在主动解锁的时候判断是否是当前线程有锁，放在别的线程解锁，通过lua 保证原子性问题。</p>
+</blockquote>
+<h4 id="实现可重入锁"><a href="#实现可重入锁" class="headerlink" title="实现可重入锁"></a>实现可重入锁</h4><ol>
+<li>使用threadlocal实现锁的可重入性，key存锁的名称，value是重入次数&gt;1持有锁。&lt;=1直接释放key。</li>
+</ol>
+<p><strong>问题：</strong> 还要保证redis和本地同时持有锁的一致性问题，本地耗时未释放锁也就未-1，但是redis那边已经超时释放了。无限耗时还会导致内存泄漏。而且只能满足同一线程的可重入锁。分布式情况下可能要满足不同线程。</p>
+<ol start="2">
+<li>redis加锁，使用lua，锁存在，uuid+1设置过期时间，不存在直接创建。（说个大概）</li>
+</ol>
+<h4 id="超时解锁导致多个线程并发问题。"><a href="#超时解锁导致多个线程并发问题。" class="headerlink" title="超时解锁导致多个线程并发问题。"></a>超时解锁导致多个线程并发问题。</h4><ol>
+<li>设置足够长的过期时间。</li>
+<li>通过启动一个锁的线程增加守护线程。快要过期的时候延长时间。</li>
+</ol>
+<h4 id="通过发布订阅消息实现分布式锁。"><a href="#通过发布订阅消息实现分布式锁。" class="headerlink" title="通过发布订阅消息实现分布式锁。"></a>通过发布订阅消息实现分布式锁。</h4><p>订阅锁释放消息。发布释放锁消息到消息队列。</p>
+<hr>
+<h3 id="Redis过期"><a href="#Redis过期" class="headerlink" title="Redis过期"></a>Redis过期</h3><p>EXPIREAT<br>expireat key second</p>
+<p>删除过期数据： </p>
+<ul>
+<li>定期删除，每隔一段时间删除。弥补了惰性删除的缺点，折中方案。</li>
+<li>惰性删除，查找的时候发现过期才删除。并发量大的时候，cpu删除数据耗时。而且大量没访问的垃圾占用空间。定期</li>
+<li>定时删除，设置key的过期时间同时，让定时器在key的过期时间来临时删除，好处是能够尽快释放内存，就是并发情况压力大，还要删除数据。没人用。</li>
+</ul>
+<p>一般使用惰性和定期配合使用。</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+
+
+    <!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <p class="copyright text-muted">
+          Theme By <a target="_blank" href="https://github.com/levblanc">Levblanc.</a>
+          Inspired By <a target="_blank" href="https://github.com/klugjo/hexo-theme-clean-blog">Clean Blog.</a>
+        <p class="copyright text-muted">
+          Powered By <a target="_blank" href="https://hexo.io/">Hexo.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- After Footer Scripts -->
+
+<script src="/js/highlight.pack.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var codeBlocks = Array.prototype.slice.call(document.getElementsByTagName('pre'))
+    codeBlocks.forEach(function(block, index) {
+      hljs.highlightBlock(block);
+    });
+  });
+</script>
+
+  </body>
+</html>
+

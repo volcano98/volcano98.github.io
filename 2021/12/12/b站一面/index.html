@@ -39,8 +39,7 @@
 <meta name="generator" content="Hexo 5.4.0"></head>
 
   <body>
-    <!-- Archive Header -->
-<!-- Page Header -->
+    <!-- Page Header -->
 
 
 <header class="site-header header-background" style="background-image: url(/img/default-banner-dark.jpg)">
@@ -48,7 +47,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">Blog Archives</p>
+          <p class="title">Untitled Post</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -93,82 +92,66 @@
   </div>
 </header>
 
-<!-- Archive List -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-      
-        <div class="archive-item">
-  <a href="/2021/12/18/redis/" class="post-title">
-    redis
-  </a>
-  <div class="date text-muted">Posted on 2021-12-18 13:25:17</div>
-</div>
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By John Doe</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2021-12-12</span>
+            <span class="time">14:27:51</span>
+          </span>
+          
+        </div>
+        <!-- Tags -->
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <ol>
+<li>令牌桶算法。请求是如何到zuul 的。缓存突刺解决方案</li>
+</ol>
+<ul>
+<li><p>在application.proerties里面配置对应的zuul.route.path,和url（项目用的传统1：1方式）<br>可以使用path，serviceId，参数对配合ribbon 的形式，实现负载均衡的基础上，完成多实例配置。</p>
+<blockquote>
+<p>具体看《SpringCloud 微服务实战 page227》</p>
+</blockquote>
+</li>
+<li><p>lua脚本保证幂等性,将对redis的多次操作组合成一次，保证原子性，同时减少和redis连接次数。</p>
+</li>
+<li><p>缓存突刺，滑动窗口实现，</p>
+</li>
+</ul>
+<ol start="2">
+<li>如何限流，为什么用redis，直接放在内存里面做不就好了？幂等性</li>
+</ol>
+<ul>
+<li>放内存里，如果是分布式部署，通过redis实现更好。</li>
+</ul>
+<p>我们借助 Jedis 包来操作 Redis，实现在 pom.xml 添加 Jedis 框架的引用，配置如下：</p>
+<p>Jedis和shareJedis明天看一下。</p>
+<ol start="3">
+<li>Jmeter命令，dump时机。</li>
+</ol>
+<p>-XX:+HeapDumpOnOutOfMemoryError<br>-XX:HeapDumpPath</p>
+<ol start="4">
+<li><p>k8s 有哪些资源。用过哪些，在yaml里面有哪些type。</p>
+</li>
+<li><p>线程池耗尽是什么情况。如何优化。</p>
+</li>
+<li><p>mysql创建索引命令。</p>
+</li>
+</ol>
 
-      
-        <div class="archive-item">
-  <a href="/2021/12/12/b%E7%AB%99%E4%B8%80%E9%9D%A2/" class="post-title">
-    Untitled Post
-  </a>
-  <div class="date text-muted">Posted on 2021-12-12 20:02:39</div>
-</div>
-
-      
-        <div class="archive-item">
-  <a href="/2021/12/08/%E4%B8%B4%E6%97%B6%E8%AE%B0%E5%BD%95/" class="post-title">
-    Untitled Post
-  </a>
-  <div class="date text-muted">Posted on 2021-12-08 01:19:51</div>
-</div>
-
-      
-        <div class="archive-item">
-  <a href="/2021/12/07/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" class="post-title">
-    计算机网络
-  </a>
-  <div class="date text-muted">Posted on 2021-12-07 21:37:28</div>
-</div>
-
-      
-        <div class="archive-item">
-  <a href="/2021/12/05/%E6%8A%80%E6%9C%AF%E7%9F%A5%E8%AF%86%E6%A2%B3%E7%90%86%E7%AF%87%E3%80%82/" class="post-title">
-    个人总结
-  </a>
-  <div class="date text-muted">Posted on 2021-12-05 00:00:00</div>
-</div>
-
-      
-        <div class="archive-item">
-  <a href="/2021/11/25/%E6%B5%8B%E8%AF%95%E7%AF%87/" class="post-title">
-    first-blo
-  </a>
-  <div class="date text-muted">Posted on 2021-11-25 21:17:37</div>
-</div>
-
-      
-        <div class="archive-item">
-  <a href="/2021/11/25/hello-world/" class="post-title">
-    Hello World
-  </a>
-  <div class="date text-muted">Posted on 2021-11-25 20:09:30</div>
-</div>
-
-      
-
+        </div>
+      </div>
     </div>
   </div>
-</div>
-<!-- Pagination -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-10 col-md-10 col-md-offset-1">
-      <ul class="pagination">
-          
-          
-      </ul>
-    </div>
-  </div>
-</div>
+</article>
 
 
 
