@@ -104,7 +104,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2021-12-18</span>
-            <span class="time">14:27:51</span>
+            <span class="time">22:02:46</span>
           </span>
           
         </div>
@@ -113,7 +113,26 @@
         <!-- Post Main Content -->
         <div class="post-content">
           <h3 id="redis为什么快。"><a href="#redis为什么快。" class="headerlink" title="redis为什么快。"></a>redis为什么快。</h3><p>内存，I/O多路复用—&gt;I/O为什么慢。</p>
-<h3 id="Redis-I-O多路复用"><a href="#Redis-I-O多路复用" class="headerlink" title="Redis I/O多路复用"></a>Redis I/O多路复用</h3><h3 id="数据类型和实现方式"><a href="#数据类型和实现方式" class="headerlink" title="数据类型和实现方式"></a>数据类型和实现方式</h3><p>字符串String、列表List、哈希Hash、集合Set、有序集合Zset，但是Redis后续又丰富了几种数据类型分别是Bitmaps、HyperLogLogs、GEO。</p>
+<h3 id="Redis-I-O多路复用"><a href="#Redis-I-O多路复用" class="headerlink" title="Redis I/O多路复用"></a>Redis I/O多路复用</h3><p>select、poll和epoll都是Linux API提供的IO复用方式。注意select，poll，epoll本质上都是同步I/O，因为这些就绪的IO上的数据都由用户线程进行拷贝</p>
+<p><strong>select</strong> ，适合连接数少，线程活跃的情况</p>
+<p><strong>poll</strong> ，将底层数组换成了链表实现，所以无最大监听数。</p>
+<p>上面2种都存在问题，<br>1.大量的fd数组被整体数组被复制到内核。当socket较多时，每次select都要通过遍历FD_SETSIZE个socket，不管是否活跃，重复多次，线性轮询查找，fd增多，影响效率。</p>
+<p>2.单个数量有限（poll无限，用链表的方式存储）</p>
+<p><strong>epoll</strong>，就绪的时候，会将fd挂载到双向链表readlist上面，就绪列表用来存储已经发生注册事件的文件描述符的集合<br>红黑树+双向链表。</p>
+<p>如何解决上面问题：<br>提供3个函数，create创建， ctl注册，wait等待。<br>create 创建一个句柄，ctl系统调用像epoll对象添加感兴趣的事件，wait监听等待队列结果。不用重复copy监听集合。</p>
+<ol>
+<li>只挂载一遍，为每个fd指定一个回调函数，当设备就绪，唤醒等待队列上的等待者时，就会调用这个回调函数，而这个回调函数会把就绪的fd加入一个就绪链表）。epoll_wait的工作实际上就是在这个就绪链表中查看有没有就绪的fd</li>
+<li>无线fd，只监听活跃的，fd就绪，放入就绪列表readylist里面，调用wait获取。wait不用遍历fd</li>
+</ol>
+<p>socket少且都活跃，适合select 和poll，epoll结构复杂还有回调函数。<br>socket多且不是全部活跃，适合epoll </p>
+<p>水平触发（LT） 默认工作模式，表示当epoll_wait检测到某描述符事件就绪并通知应用程序时，应用程序可以不立即处理该事件；下次调用epoll_wait时，会再次通知此事件。</p>
+<p>ET的优点在于epoll_wait的调用次数会减少一些，</p>
+<p>边缘触发（ET）： 当epoll_wait检测到事件就绪并通知应用程序时，应用程序必须立即处理该事件。如果不处理，下次调用epoll_wait时，不会再次通知此事件。边缘触发只在状态由未就绪变为就绪时只通知一次。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/272891398">https://zhuanlan.zhihu.com/p/272891398</a> ，<a target="_blank" rel="noopener" href="https://juejin.cn/post/6882984260672847879#heading-27">https://juejin.cn/post/6882984260672847879#heading-27</a></p>
+</blockquote>
+<p>主动轮询变为被动通知，只有活跃可用的FD才会调用callback函数 即Epoll最大的优点就在于它只关心“活跃”的连接，而跟连接总数无关，因此在实际的网络环境中，Epoll的效率就会远远高于select和poll<br>epoll通过内核和用户空间共享一块内存来实现的</p>
+<h3 id="数据类型和实现方式"><a href="#数据类型和实现方式" class="headerlink" title="数据类型和实现方式"></a>数据类型和实现方式</h3><p>字符串String、列表List、哈希Hash、集合Set、有序集合Zset，但是Redis后续又丰富了几种数据类型分别是Bitmaps、HyperLogLogs、GEO。</p>
 <p>zset实现方式：<br>跳表实现方式：<br>字典</p>
 <p>Redis底层的数据结构包括：简单动态数组SDS、链表、字典、跳跃链表、整数集合、压缩列表、对象。<br>跳表通过多层缓存去减少查找次数。<br>其中，插入、查找、删除以及迭代输出有序序列这几个操作，红黑树也能完成，时间复杂度和跳表是一样的，但是，按照区间来查找数据这个操作，红黑树的效率没有跳表高。 </p>
 <h3 id="Redis的淘汰策略"><a href="#Redis的淘汰策略" class="headerlink" title="Redis的淘汰策略"></a>Redis的淘汰策略</h3><p>直接报错。<br>从过期的数据lru<br>从全部的key进行lru<br>在设置了过期时间的key中，淘汰过期时间剩余最短的<br>allkeys-random：从所有key中随机淘汰数据<br>volatile-random：从设置了过期时间的key中随机淘汰</p>
@@ -143,6 +162,8 @@
 <li>定时删除，设置key的过期时间同时，让定时器在key的过期时间来临时删除，好处是能够尽快释放内存，就是并发情况压力大，还要删除数据。没人用。</li>
 </ul>
 <p>一般使用惰性和定期配合使用。</p>
+<p>从一个进程的运行转到另一个进程上运行，这个过程中经过下面这些变化：</p>
+<p>保存处理机上下文，包括程序计数器和其他寄存器。<br>更新PCB信息。<br>把进程的PCB移入相应的队列，如就绪、在某事件阻塞等队列。<br>选择另一个进程执行，并更新其PCB。<br>更新内存管理的数据结构。<br>恢复处理机上下文。</p>
 
         </div>
       </div>
